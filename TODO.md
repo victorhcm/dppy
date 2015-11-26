@@ -7,6 +7,12 @@
 
 - [ ] Reimplement sampling for a grid. It seems that I'm sampling for a line of elements. What I need to do is sample twice, considering two lines. But, I need to check, because in this way, I would be sampling one axis independent of the other one
 
+## Ideas
+
+- Compare DPP with Markov Random Fields
+- We could use Gibbs Sampler too, if it was possible.
+- We can use DPP as a prior, e.g., for Latent Dirichlet Allocation
+- Testing DPP to select pedestrians
 
 ## Notes
 
