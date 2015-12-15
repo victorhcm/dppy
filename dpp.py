@@ -2,9 +2,13 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import logging
 
 class DPP:
     def __init__(self, grid_points, sigma_ = 0.1):
+        """
+        Implements simple grid points version
+        """
         self.n = len(grid_points)
         self.elements = range(0, self.n*self.n)
         self.sigma = sigma_
@@ -14,6 +18,9 @@ class DPP:
         self.xx = self.xx.flatten()[np.newaxis].T
         self.yy = self.yy.flatten()[np.newaxis].T
         self.L = np.exp(-0.5 * ((self.xx - self.xx.T)**2 + (self.yy - self.yy.T)**2) / self.sigma**2)
+
+        # converts index i to equivalent point (a,b)
+        self.idx_to_point = np.hstack((self.xx, self.yy))
 
     def _idxs(self, items):
         idxs_list = [[a] for a in items]
@@ -46,11 +53,11 @@ class DPP:
         norm = np.linalg.det( self.L + I_invA )
         return conj / float(norm)
     
-    def dummy_sampling(self, num_samples):      
-        Y = self.elements
+    def dummy_sampling(self, num_samples, verbose = False):      
+        Y = list(self.elements)
         sampled = []
         for it in xrange(num_samples):
-            print "Iteration: %d" % it
+            if verbose: print "Iteration: %d" % it
             
             prbs  = [self.cond_prob([y], sampled) for y in Y]
             prbs /= np.sum(prbs)
@@ -61,12 +68,13 @@ class DPP:
             # creating Y - A, i.e. Y_omega - sampled
             Y.remove(elem_sampled)
             
-            print "Y", Y
-            print "p", prbs
-            print "s", sampled
-            print 
+            if verbose:
+                print "Y", Y
+                print "p", prbs
+                print "s", sampled
+                print 
             
-        return sampled
+        return map(int, sampled)
     
     def decompose_kernel(self):
         D, V = np.linalg.eig(self.L) # D: eigenvalues, V: eigenvectors
