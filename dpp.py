@@ -119,11 +119,13 @@ class DPP:
 
             # update V
             log.debug("Shapes => Vj %s, V[Y[i],:] %s", Vj.shape, V[ Y[i],: ].shape)
-            # Vj = Vj[:,np.newaxis]         # Vj must be a column vector, eg. (100, 1)
+            Vj = Vj[:,np.newaxis]         # Vj must be a column vector, eg. (100, 1)
             # V_Yi = V[Y[i], np.newaxis, :] # V at Y[i] must be row-vector, eg. (36, 1)
-            log.debug(Vj[:,np.newaxis].shape)
-            log.debug(V[ Y[i], np.newaxis, : ].shape)
-            log.debug((Vj[:, np.newaxis] * V[ Y[i], np.newaxis, : ]).shape)
+                                            # but it's not required, it's already row
+            log.debug(Vj.shape)
+            log.debug(V[Y[i],:].shape)
+            log.debug((Vj * V[Y[i], :]).shape)
+
             V = V - (Vj * V[ Y[i],: ]) / Vj[ Y[i] ]
 
 
