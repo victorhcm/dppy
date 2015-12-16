@@ -115,11 +115,11 @@ class DPP:
             log.debug( "js (idx vec to eliminate) = %s", np.nonzero(V[Y[i],:]) )
             Vj = V[:,j]
             V = np.delete(V, j, 1)
-            log.debug("j: %s, Vj: %s, V: %s", j, Vj.shape, V.shape)
+            log.debug("Shapes => j: %s, Vj: %s, V: %s", j, Vj.shape, V.shape)
 
             # update V
             log.debug("Shapes => Vj %s, V[Y[i],:] %s", Vj.shape, V[ Y[i],: ].shape)
-            Vj = Vj[:,np.newaxis]         # Vj must be a column vector, eg. (100, 1)
+            Vj = Vj[:,np.newaxis]           # Vj must be a column vector, eg. (100, 1)
             # V_Yi = V[Y[i], np.newaxis, :] # V at Y[i] must be row-vector, eg. (36, 1)
                                             # but it's not required, it's already row
             log.debug(Vj.shape)
@@ -135,7 +135,7 @@ class DPP:
                 log.debug(np.linalg.norm(V[:,a]))
                 V[:,a] = V[:,a] / np.linalg.norm(V[:,a])
 
-
+        return sorted(map(int, Y))
 
 
 if __name__ == "__main__":
@@ -164,6 +164,11 @@ if __name__ == "__main__":
     print "B = {99} | A = {0,50}:", dpp_grid.cond_prob([99], [0,50])
     # p.s: you need to convert idx_to_point to see which point it is
 
-    dpp_grid.sample_dpp()
+    sampled_idxs = dpp_grid.sample_dpp()
+    sampled_points = dpp_grid.idx_to_point[sampled_idxs]
+    print('samples: {}'.format(sampled_points))
+
+    plt.scatter(sampled_points[:,0], sampled_points[:,1])
+    plt.show()
 
 
