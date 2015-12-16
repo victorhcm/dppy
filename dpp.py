@@ -128,6 +128,14 @@ class DPP:
 
             V = V - (Vj * V[ Y[i],: ]) / Vj[ Y[i] ]
 
+            # orthogonalize
+            for a in xrange(0,i):
+                for b in xrange(0,a):
+                    V[:,a] = V[:,a] - V[:,a].T * V[:,b] * V[:,b]
+                log.debug(np.linalg.norm(V[:,a]))
+                V[:,a] = V[:,a] / np.linalg.norm(V[:,a])
+
+
 
 
 if __name__ == "__main__":
