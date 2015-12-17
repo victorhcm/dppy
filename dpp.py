@@ -78,9 +78,9 @@ class DPP:
         return map(int, sampled)
     
     def sample_dpp(self, k = None):
-        logging.basicConfig(level=logging.DEBUG, format='%(name)s (%(levelname)s): %(message)s')
-        module = sys.modules['__main__'].__file__
-        log = logging.getLogger(module)
+        logging.basicConfig(level=logging.INFO, format='%(name)s (%(levelname)s): %(message)s')
+        # module = sys.modules['__main__'].__file__
+        log = logging.getLogger()
 
         # decomposes kernel
         D, V = np.linalg.eig(self.L) # D: eigenvalues, V: eigenvectors
@@ -137,9 +137,11 @@ class DPP:
 
         return sorted(map(int, Y))
 
+    def gibbs_sampler(self):
+        pass
 
 if __name__ == "__main__":
-    n = 10
+    n = 60
     grid_points = np.arange(n) / float(n)
     dpp_grid = DPP(grid_points)
 
