@@ -265,7 +265,7 @@ class DPP:
             b_u = self.L[Y,u][:, np.newaxis]
             c_u = self.L[u,u]
 
-            log.debug('b_u: %s', b_u, b_u.shape)
+            log.debug('b_u: %s', b_u.shape)
             log.debug('c_u: %s', c_u.shape)
             log.debug('Y: %s', len(Y))
             log.debug('L_Y:\n%s', L_Y.shape)
