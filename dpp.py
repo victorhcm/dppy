@@ -33,11 +33,15 @@ class DPP:
         # selects the opposite of the items specified
         pass
     
+    def L_sel(self, items):
+        """returns L_Y, that is, L indexed by elements Y"""
+        return self.L[ self._idxs(items) ]
+
     def prob(self, items):
         return np.linalg.det( self.L[ self._idxs(items) ] )
     
     def cond_prob(self, new_items, sampled = []):
-        """TODO implement the conditioning function"""
+        """implement the conditioning function"""
         if not sampled:
             return self.prob(new_items)
         
@@ -142,15 +146,13 @@ class DPP:
     def mh_sampler(self, epsilon=0.01):
         """
         Metropolis-Hastings algorithm as proposed by [Fast Determinantal Point
-        Process Sampling with Application to Clustering][1]
+        Process Sampling with Application to Clustering][1].
 
         Inputs:
         - epsilon: parameter used to determine the number of iterations. Authors
                    used 0.01
-
         Outputs:
         - Y: list of samples from the itemset
-
 
         [1]: http://papers.nips.cc/paper/\
             5008-fast-determinantal-point-process-\
@@ -213,6 +215,83 @@ class DPP:
 
         return Y
 
+
+    def mh_fast_sampler(self, epsilon=0.01):
+        """
+        Faster Metropolis-Hastings algorithm as proposed by [Fast Determinantal
+        Point Process Sampling with Application to Clustering][1]. Instead of
+        computing the determinant every time, which is expensive, computes a
+        determinant-free ratio. It still requires to compute the inverse of
+        L^-1_Y, but it is updated every time in O(Y^2) instead of O(Y^3).
+
+        Inputs:
+        - epsilon: parameter used to determine the number of iterations. Authors
+                   used 0.01
+        Outputs:
+        - Y: list of samples from the itemset
+
+        [1]: http://papers.nips.cc/paper/\
+            5008-fast-determinantal-point-process-\
+            sampling-with-application-to-clustering.pdf
+        """
+        logging.basicConfig(level=logging.DEBUG, format='%(name)s (%(levelname)s): %(message)s')
+        log = logging.getLogger()
+
+        # randomly initialize state $Y \subseteq S$.  it's recommended to
+        # initialize with a small size, as $o(n^{1/3})$ to avoid initial
+        # expensive inverse computations.
+        ini_sample_sz = self.n**(float(1)/3)
+        Y = list(np.random.choice(self.itemset, ini_sample_sz, replace=False))
+        log.debug("Initial sample size: %s", ini_sample_sz)
+        log.debug("Sampled elements: %s", Y)
+
+        # mixing time is $O(n log(n/epsilon))$
+        niter = int(self.n * math.log(self.n / epsilon))
+        log.debug("Number of iterations: %s", niter)
+
+        for i in xrange(niter):
+            u = np.random.choice(self.itemset, 1, replace=False)
+
+            # probabilities of inclusion/removal of item u
+            b_u = self.L[Y,u][:, np.newaxis]
+            c_u = self.L[u,u]
+            L_Y = self.L_sel(Y)
+            L_Y_inv = np.linalg.inv(L_Y)
+
+            log.debug('b_u: %s, shape: %s', b_u, b_u.shape)
+            log.debug('c_u: %s', c_u)
+            log.debug('Y: %s, shape: %s', Y, len(Y))
+            log.debug('L_Y:\n%s', L_Y.shape)
+
+            ratio = np.dot(np.dot(b_u.T, L_Y_inv), b_u)
+            pu_pos = min(1,  c_u-ratio)
+            pu_neg = min(1, (c_u-ratio)**(-1))
+
+            log.info("pu_pos:\t%s", pu_pos)
+            log.info("pu_neg:\t%s", pu_neg)
+
+            if u not in Y:
+                # includes u with probability pu_pos
+                add_elem = np.random.rand(1) <= pu_pos
+                if add_elem: 
+                    previous_sz = len(Y)
+                    Y.append(int(u))
+                    log.debug('adding elem u: %s. '
+                              'Y: %s to %s elements', u, previous_sz, len(Y))
+            else:
+                # removes u with probability pu_neg
+                rem_elem = np.random.rand(1) <= pu_neg
+                if rem_elem:
+                    previous_sz = len(Y)
+                    Y.remove(int(u))
+                    log.debug('removing elem u: %s. '
+                              'Y: %s to %s elements', u, previous_sz, len(Y))
+
+        return Y
+
+
+
+
 if __name__ == "__main__":
     n = 10
     grid_points = np.arange(n) / float(n)
@@ -251,7 +330,7 @@ if __name__ == "__main__":
     grid_points = np.arange(n) / float(n)
     dpp_grid = DPP(grid_points)
 
-    sampled_idxs = dpp_grid.mh_sampler()
+    sampled_idxs = dpp_grid.mh_fast_sampler()
     sampled_points = dpp_grid.idx_to_point[sampled_idxs]
     plt.scatter(sampled_points[:,0], sampled_points[:,1])
     plt.show()
