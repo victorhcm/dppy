@@ -294,15 +294,15 @@ class DPP:
                     # new value for each matroid
                     upper11 = L_Y_inv + (np.dot(np.dot(np.dot(L_Y_inv, b_u), b_u.T), L_Y_inv) / d_u)
                     upper12 = -(np.dot(L_Y_inv, b_u) / d_u)
-                    under11 = -(np.dot(b_u.T, L_Y_inv) / d_u)
-                    under12 = d_u
+                    lower11 = -(np.dot(b_u.T, L_Y_inv) / d_u)
+                    lower12 = d_u
 
                     # matrices including the new element
                     upper = np.hstack((upper11, upper12))
-                    under = np.hstack((under11, under12))
+                    lower = np.hstack((lower11, lower12))
 
                     # updated inverse L_Y matrix
-                    L_Y_inv = np.vstack((upper, under))
+                    L_Y_inv = np.vstack((upper, lower))
 
                     log.debug('L_Y_inv: %s', L_Y_inv)
                     log.debug('after L_Y_inv: %s', L_Y_inv.shape)
