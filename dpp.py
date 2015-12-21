@@ -321,8 +321,31 @@ class DPP:
                     log.debug('Y_sorted: %s', Y_sorted)
                     log.debug('u: %s => sub_u: %s', u, sub_u)
 
+                    # -------------------------------------------------
+                    # mounts matrix
                     # removes column and row u
-                    D = np.delete(np.delete(L_Y, sub_u, axis=0), sub_u, axis=1) 
+                    L_Y_nu = np.delete(np.delete(L_Y, sub_u, axis=0), sub_u, axis=1) 
+
+                    # matrices including the new element
+                    upper = np.hstack((L_Y_nu, b_u))
+                    lower = np.hstack((b_u.T, c_u))
+
+                    # updated inverse L_Y matrix
+                    Ly_prov = np.inv( np.vstack((upper, lower)) )
+                    # -------------------------------------------------
+                    # extracts submatrices D, e, and f
+                    nrows, ncols = L_Y_nu
+                    # >>> z[0:nrows-1, 0:ncols-1]
+                    # array([[ 0.07722864, -1.12759212,  1.16423513],
+                    #            [-0.02602814,  0.15017309, -1.53412573]])
+                    # >>> z[nrows-1:, :-1]
+                    # array([[ 1.26581899,  1.02463015,  0.0380818 ]])
+                    # >>> z[-1,-1]
+                    # -0.48207756800698592
+
+                    D = Ly_prov[0:nrows-1,0:ncols-1]
+                    e = Ly_prov[nrows-1:, :-1]
+                    f = Ly_prov[-1,-1]
 
                     log.debug('sub_u: %s %s', sub_u, b_u.shape)
                     e = np.delete(b_u, sub_u, axis = 0)
@@ -330,10 +353,10 @@ class DPP:
                     log.debug('D: %s', D.shape)
                     log.debug('e: %s', e.shape)
 
-                    L_Y_inv = D - np.dot(e, e.T) / c_u
+                    L_Y_inv = D - np.dot(e, e.T) / f
                     log.debug('after L_Y_inv: %s', L_Y_inv.shape)
 
-                    # ------------------------------------------------------
+                    # -------------------------------------------------
                     # removes element
                     previous_sz = len(Y)
                     Y.remove(int(u))
