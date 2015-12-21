@@ -246,12 +246,12 @@ class DPP:
         # expensive inverse computations.
         ini_sample_sz = self.n**(float(1)/3)
         Y = list(np.random.choice(self.itemset, ini_sample_sz, replace=False))
-        log.debug("Initial sample size: %s", ini_sample_sz)
-        log.debug("Sampled elements: %s", Y)
+        log.info("Initial sample size: %s", ini_sample_sz)
+        log.info("Sampled elements: %s", Y)
 
         # mixing time is $O(n log(n/epsilon))$
         niter = int(self.n * math.log(self.n / epsilon))
-        log.debug("Number of iterations: %s", niter)
+        log.info("Number of iterations: %s", niter)
 
         # precomputing the inverse of L_Y, which will be updated iteratively
         L_Y = self.L_sel(Y)
@@ -287,17 +287,24 @@ class DPP:
                     log.debug('adding elem u: %s. '
                               'Y: %s to %s elements', u, previous_sz, len(Y))
 
+                    # ------------------------------------------------------
                     # updates the inverse
                     log.debug('previous L_Y_inv: %s', L_Y_inv.shape)
 
+                    # new value for each matroid
                     upper11 = L_Y_inv + (np.dot(np.dot(np.dot(L_Y_inv, b_u), b_u.T), L_Y_inv) / d_u)
                     upper12 = -(np.dot(L_Y_inv, b_u) / d_u)
                     under11 = -(np.dot(b_u.T, L_Y_inv) / d_u)
                     under12 = d_u
+
+                    # matrices including the new element
                     upper = np.hstack((upper11, upper12))
                     under = np.hstack((under11, under12))
+
+                    # updated inverse L_Y matrix
                     L_Y_inv = np.vstack((upper, under))
 
+                    log.debug('L_Y_inv: %s', L_Y_inv)
                     log.debug('after L_Y_inv: %s', L_Y_inv.shape)
             else:
                 # removes u with probability pu_neg
@@ -307,7 +314,7 @@ class DPP:
                     log.debug('previous L_Y_inv: %s', L_Y_inv.shape)
                     L_Y = self.L_sel(Y)
 
-                    # FIXME u is a item from the whole matrix L. I must compute the equivalent u'
+                    # u is a item from the whole matrix L. I must compute the equivalent u'
                     # for the submatrix L_Y
                     Y_sorted = sorted(Y)
                     sub_u = Y_sorted.index(u)
@@ -325,14 +332,14 @@ class DPP:
                     L_Y_inv = D - np.dot(e, e.T) / c_u
                     log.debug('after L_Y_inv: %s', L_Y_inv.shape)
 
+                    # ------------------------------------------------------
+                    # removes element
                     previous_sz = len(Y)
                     Y.remove(int(u))
                     log.debug('removing elem u: %s. '
                               'Y: %s to %s elements', u, previous_sz, len(Y))
 
-
         return Y
-
 
 
 
