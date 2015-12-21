@@ -382,6 +382,8 @@ class DPP:
         log.debug("Number of iterations: %s", niter)
 
         for i in xrange(niter):
+            log.info('i: %s/%s', i, niter)
+
             SnoX = [x for x in self.itemset if x not in X]
             u = np.random.choice(X, 1, replace=False)
             v = np.random.choice(SnoX, 1, replace=False)
@@ -405,17 +407,16 @@ class DPP:
             d_u = c_u - np.dot(np.dot(b_u.T, L_Y_inv), b_u)
             p = min(1, d_v / d_u)
 
-            log.info('d_v: %s, d_u: %s, p: %s', d_v, d_u, p)
+            log.debug('d_v: %s, d_u: %s, p: %s', d_v, d_u, p)
 
             # includes {v} with prob. p
-            # includes u with probability pu_pos
             add_elem = np.random.rand(1) <= p
             if add_elem: 
                 previous_sz = len(Y)
                 Y.append(v)
                 X = list(Y)
                 log.debug('adding elem u: %s. '
-                          'Y: %s to %s elements', u, previous_sz, len(Y))
+                          'X: %s to %s elements', u, previous_sz, len(X))
         return X
 
 
