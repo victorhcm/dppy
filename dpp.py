@@ -317,11 +317,12 @@ class DPP:
                     # u is a item from the whole matrix L. I must compute the equivalent u'
                     # for the submatrix L_Y
                     Y_sorted = sorted(Y)
-                    sub_u = Y_sorted.index(u)
+                    sub_u = Y_sorted.index(int(u))
                     log.debug('Y_sorted: %s', Y_sorted)
                     log.debug('u: %s => sub_u: %s', u, sub_u)
 
-                    D = np.delete(np.delete(L_Y, sub_u, axis=0), sub_u, axis=1) # removes column and row u
+                    # removes column and row u
+                    D = np.delete(np.delete(L_Y, sub_u, axis=0), sub_u, axis=1) 
 
                     log.debug('sub_u: %s %s', sub_u, b_u.shape)
                     e = np.delete(b_u, sub_u, axis = 0)
