@@ -308,6 +308,14 @@ class DPP:
                     log.debug('removing elem u: %s. '
                               'Y: %s to %s elements', u, previous_sz, len(Y))
 
+                    # updates the inverse
+                    log.debug('previous L_Y_inv: %s', L_Y_inv.shape)
+                    L_Y = self.L_sel(Y)
+                    D = np.delete(np.delete(L_Y, u, axis=0), u, axis=1) # removes column and row u
+                    e = np.delete(b_u, u)
+                    L_Y_inv = D - np.dot(e, e.T) / c_u
+                    log.debug('after L_Y_inv: %s', L_Y_inv.shape)
+
         return Y
 
 
