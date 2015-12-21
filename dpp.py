@@ -37,6 +37,10 @@ class DPP:
         """returns L_Y, that is, L indexed by elements Y"""
         return self.L[ self._idxs(items) ]
 
+    # def L_sel(self, L_Y, items):
+    #     """returns L_Y, that is, L indexed by elements Y"""
+    #     return L_Y[ self._idxs(items) ]
+
     def prob(self, items):
         return np.linalg.det( self.L[ self._idxs(items) ] )
     
@@ -249,14 +253,17 @@ class DPP:
         niter = int(self.n * math.log(self.n / epsilon))
         log.debug("Number of iterations: %s", niter)
 
+        # precomputing the inverse of L_Y, which will be updated iteratively
+        L_Y = self.L_sel(Y)
+        L_Y_inv = np.linalg.inv(L_Y)
+
         for i in xrange(niter):
+            # randomly selects one element
             u = np.random.choice(self.itemset, 1, replace=False)
 
             # probabilities of inclusion/removal of item u
             b_u = self.L[Y,u][:, np.newaxis]
             c_u = self.L[u,u]
-            L_Y = self.L_sel(Y)
-            L_Y_inv = np.linalg.inv(L_Y)
 
             log.debug('b_u: %s, shape: %s', b_u, b_u.shape)
             log.debug('c_u: %s', c_u)
@@ -264,8 +271,9 @@ class DPP:
             log.debug('L_Y:\n%s', L_Y.shape)
 
             ratio = np.dot(np.dot(b_u.T, L_Y_inv), b_u)
-            pu_pos = min(1,  c_u-ratio)
-            pu_neg = min(1, (c_u-ratio)**(-1))
+            d_u   = c_u - ratio
+            pu_pos = min(1, d_u)
+            pu_neg = min(1, d_u**(-1))
 
             log.info("pu_pos:\t%s", pu_pos)
             log.info("pu_neg:\t%s", pu_neg)
@@ -278,6 +286,19 @@ class DPP:
                     Y.append(int(u))
                     log.debug('adding elem u: %s. '
                               'Y: %s to %s elements', u, previous_sz, len(Y))
+
+                    # updates the inverse
+                    log.debug('previous L_Y_inv: %s', L_Y_inv.shape)
+
+                    upper11 = L_Y_inv + (np.dot(np.dot(np.dot(L_Y_inv, b_u), b_u.T), L_Y_inv) / d_u)
+                    upper12 = -(np.dot(L_Y_inv, b_u) / d_u)
+                    under11 = -(np.dot(b_u.T, L_Y_inv) / d_u)
+                    under12 = d_u
+                    upper = np.hstack((upper11, upper12))
+                    under = np.hstack((under11, under12))
+                    L_Y_inv = np.vstack((upper, under))
+
+                    log.debug('after L_Y_inv: %s', L_Y_inv.shape)
             else:
                 # removes u with probability pu_neg
                 rem_elem = np.random.rand(1) <= pu_neg
