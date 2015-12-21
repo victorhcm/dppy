@@ -359,6 +359,60 @@ class DPP:
 
         return Y
 
+    def k_dpp_sampler(self, k=60, epsilon=0.01):
+        """
+        k-DPP sampling. 
+        Inputs:
+        - k: number of elements to be selected
+        - epsilon: parameter used to determine the number of iterations. Authors
+                   used 0.01
+        Outputs:
+        - Y: list of samples from the itemset
+        """
+        logging.basicConfig(level=logging.DEBUG, format='%(name)s (%(levelname)s): %(message)s')
+        log = logging.getLogger()
+
+        # randomly initialize state $Y \subseteq S$ with size |X| = k
+        X = list(np.random.choice(self.itemset, k, replace=False))
+        log.debug("Sampled elements: %s", X)
+
+        # mixing time is $O(n log(n/epsilon)$
+        # niter = int(k**3 * math.log(k / epsilon))
+        niter = int(k * math.log(k / epsilon))
+        log.debug("Number of iterations: %s", niter)
+
+        for i in xrange(niter):
+            SnoX = [x for x in self.itemset if x not in X]
+            u = np.random.choice(X, 1, replace=False)
+            v = np.random.choice(SnoX, 1, replace=False)
+
+            # letting Y = X \ {u}
+            Y = list(X)
+            Y.remove(u)
+            L_Y_inv = self.L_sel(Y)
+
+            # selecting corresponding vectors for elements u and v
+            b_v = self.L[Y,v][:, np.newaxis]
+            c_v = self.L[v,v]
+
+            b_u = self.L[Y,u][:, np.newaxis]
+            c_u = self.L[u,u]
+
+            # probabilities of inclusion/removal of item u and v
+            d_v = c_v - np.dot(np.dot(b_v.T, L_Y_inv), b_v)
+            d_u = c_u - np.dot(np.dot(b_u.T, L_Y_inv), b_u)
+            p = min(1, d_v / d_u)
+
+            # includes {v} with prob. p
+            # includes u with probability pu_pos
+            add_elem = np.random.rand(1) <= p
+            if add_elem: 
+                previous_sz = len(Y)
+                Y.append(v)
+                X = list(Y)
+                log.debug('adding elem u: %s. '
+                          'Y: %s to %s elements', u, previous_sz, len(Y))
+        return X
 
 
 if __name__ == "__main__":
@@ -399,7 +453,7 @@ if __name__ == "__main__":
     grid_points = np.arange(n) / float(n)
     dpp_grid = DPP(grid_points)
 
-    sampled_idxs = dpp_grid.mh_fast_sampler()
+    sampled_idxs = dpp_grid.k_dpp_sampler()
     sampled_points = dpp_grid.idx_to_point[sampled_idxs]
     plt.scatter(sampled_points[:,0], sampled_points[:,1])
     plt.show()
