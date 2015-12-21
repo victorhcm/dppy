@@ -325,22 +325,25 @@ class DPP:
                     # mounts matrix
                     # removes column and row u
                     L_Y_nu = np.delete(np.delete(L_Y, sub_u, axis=0), sub_u, axis=1) 
+                    b_u = np.delete(b_u, sub_u, axis = 0) # FIXME should I delete one element here?
+
+                    log.debug('sub_u: %s %s', sub_u, b_u.shape)
 
                     # matrices including the new element
+                    log.debug('shapes => %s %s, %s %s', L_Y_nu.shape, b_u.shape, b_u.T.shape, c_u[:,np.newaxis].shape)
                     upper = np.hstack((L_Y_nu, b_u))
-                    lower = np.hstack((b_u.T, c_u))
+                    lower = np.hstack((b_u.T, c_u[:,np.newaxis]))
 
                     # updated inverse L_Y matrix
-                    Ly_prov = np.inv( np.vstack((upper, lower)) )
+                    log.debug('%s', np.vstack((upper, lower)).shape)
+                    log.debug('%s', np.vstack((upper, lower)) )
+                    Ly_prov = np.linalg.inv( np.vstack((upper, lower)) )
                     # -------------------------------------------------
                     # extracts submatrices D, e, and f
                     nrows, ncols = L_Y_nu
                     D = Ly_prov[0:nrows-1,0:ncols-1]
                     e = Ly_prov[nrows-1, :-1]
                     f = Ly_prov[-1,-1]
-
-                    log.debug('sub_u: %s %s', sub_u, b_u.shape)
-                    e = np.delete(b_u, sub_u, axis = 0)
 
                     log.debug('D: %s', D.shape)
                     log.debug('e: %s', e.shape)
