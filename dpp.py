@@ -265,9 +265,9 @@ class DPP:
             b_u = self.L[Y,u][:, np.newaxis]
             c_u = self.L[u,u]
 
-            log.debug('b_u: %s, shape: %s', b_u, b_u.shape)
-            log.debug('c_u: %s', c_u)
-            log.debug('Y: %s, shape: %s', Y, len(Y))
+            log.debug('b_u: %s', b_u, b_u.shape)
+            log.debug('c_u: %s', c_u.shape)
+            log.debug('Y: %s', len(Y))
             log.debug('L_Y:\n%s', L_Y.shape)
 
             ratio = np.dot(np.dot(b_u.T, L_Y_inv), b_u)
@@ -312,7 +312,16 @@ class DPP:
                     log.debug('previous L_Y_inv: %s', L_Y_inv.shape)
                     L_Y = self.L_sel(Y)
                     D = np.delete(np.delete(L_Y, u, axis=0), u, axis=1) # removes column and row u
-                    e = np.delete(b_u, u)
+
+                    # FIXME u is a item from the whole matrix L. I must compute the equivalent u'
+                    # for the submatrix L_Y
+
+                    log.debug('u: %s %s', u, b_u.shape)
+                    e = np.delete(b_u, u, axis = 0)
+
+                    log.debug('D: %s', D.shape)
+                    log.debug('e: %s', e.shape)
+
                     L_Y_inv = D - np.dot(e, e.T) / c_u
                     log.debug('after L_Y_inv: %s', L_Y_inv.shape)
 
