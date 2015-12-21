@@ -336,7 +336,7 @@ class DPP:
                     # extracts submatrices D, e, and f
                     nrows, ncols = L_Y_nu
                     D = Ly_prov[0:nrows-1,0:ncols-1]
-                    e = Ly_prov[nrows-1:, :-1]
+                    e = Ly_prov[nrows-1, :-1]
                     f = Ly_prov[-1,-1]
 
                     log.debug('sub_u: %s %s', sub_u, b_u.shape)
@@ -347,7 +347,6 @@ class DPP:
 
                     L_Y_inv = D - np.dot(e, e.T) / f
                     log.debug('after L_Y_inv: %s', L_Y_inv.shape)
-
                     # -------------------------------------------------
                     # removes element
                     previous_sz = len(Y)
