@@ -311,13 +311,18 @@ class DPP:
                     # updates the inverse
                     log.debug('previous L_Y_inv: %s', L_Y_inv.shape)
                     L_Y = self.L_sel(Y)
-                    D = np.delete(np.delete(L_Y, u, axis=0), u, axis=1) # removes column and row u
 
                     # FIXME u is a item from the whole matrix L. I must compute the equivalent u'
                     # for the submatrix L_Y
+                    Y_sorted = Y.sort()
+                    sub_u = Y_sorted.index(u)
+                    log.debug('Y_sorted: %s', Y_sorted)
+                    log.debug('u: %s => sub_u: %s', u, sub_u)
 
-                    log.debug('u: %s %s', u, b_u.shape)
-                    e = np.delete(b_u, u, axis = 0)
+                    D = np.delete(np.delete(L_Y, sub_u, axis=0), sub_u, axis=1) # removes column and row u
+
+                    log.debug('sub_u: %s %s', sub_u, b_u.shape)
+                    e = np.delete(b_u, sub_u, axis = 0)
 
                     log.debug('D: %s', D.shape)
                     log.debug('e: %s', e.shape)
