@@ -303,18 +303,13 @@ class DPP:
                 # removes u with probability pu_neg
                 rem_elem = np.random.rand(1) <= pu_neg
                 if rem_elem:
-                    previous_sz = len(Y)
-                    Y.remove(int(u))
-                    log.debug('removing elem u: %s. '
-                              'Y: %s to %s elements', u, previous_sz, len(Y))
-
                     # updates the inverse
                     log.debug('previous L_Y_inv: %s', L_Y_inv.shape)
                     L_Y = self.L_sel(Y)
 
                     # FIXME u is a item from the whole matrix L. I must compute the equivalent u'
                     # for the submatrix L_Y
-                    Y_sorted = Y.sort()
+                    Y_sorted = sorted(Y)
                     sub_u = Y_sorted.index(u)
                     log.debug('Y_sorted: %s', Y_sorted)
                     log.debug('u: %s => sub_u: %s', u, sub_u)
@@ -329,6 +324,12 @@ class DPP:
 
                     L_Y_inv = D - np.dot(e, e.T) / c_u
                     log.debug('after L_Y_inv: %s', L_Y_inv.shape)
+
+                    previous_sz = len(Y)
+                    Y.remove(int(u))
+                    log.debug('removing elem u: %s. '
+                              'Y: %s to %s elements', u, previous_sz, len(Y))
+
 
         return Y
 
