@@ -322,36 +322,36 @@ class DPP:
 
 
 if __name__ == "__main__":
-    n = 10
-    grid_points = np.arange(n) / float(n)
-    dpp_grid = DPP(grid_points)
+    # n = 10
+    # grid_points = np.arange(n) / float(n)
+    # dpp_grid = DPP(grid_points)
 
-    print "sanity check"
-    print "i = {0,1,2}:", dpp_grid.prob([0,1,2])
-    print "i = {1,2,3}:", dpp_grid.prob([1,2,3])
-    print 
-    print "sampling distance points in the grid:"
-    print "i = {0,50,99}:", dpp_grid.prob([0,50,99]) # selecting distant points in the diagonal
-    print "i = {0,33,77}:", dpp_grid.prob([0,33,77])
-    print "i = {0,10,20}:", dpp_grid.prob([0,10,20])
-    print "i = {0,5,10}:", dpp_grid.prob([0,5,10])
-    print
-    print "conditional probabilities"
-    print "i = {0,1,2}:", dpp_grid.prob([0,1,2])
-    print "B = {3} | A = {0,1,2}:", dpp_grid.cond_prob([3], [0,1,2])
-    print "B = {4} | A = {0,1,2}:", dpp_grid.cond_prob([4], [0,1,2])
-    print "B = {9} | A = {0,1,2}:", dpp_grid.cond_prob([9], [0,1,2])
-    print 
-    print "B = {2} | A = {0,1}:", dpp_grid.cond_prob([2], [0,1])
-    print "B = {3} | A = {0,1}:", dpp_grid.cond_prob([3], [0,1])
-    print "B = {99} | A = {0,50}:", dpp_grid.cond_prob([99], [0,50])
-    # p.s: you need to convert idx_to_point to see which point it is
+    # print "sanity check"
+    # print "i = {0,1,2}:", dpp_grid.prob([0,1,2])
+    # print "i = {1,2,3}:", dpp_grid.prob([1,2,3])
+    # print 
+    # print "sampling distance points in the grid:"
+    # print "i = {0,50,99}:", dpp_grid.prob([0,50,99]) # selecting distant points in the diagonal
+    # print "i = {0,33,77}:", dpp_grid.prob([0,33,77])
+    # print "i = {0,10,20}:", dpp_grid.prob([0,10,20])
+    # print "i = {0,5,10}:", dpp_grid.prob([0,5,10])
+    # print
+    # print "conditional probabilities"
+    # print "i = {0,1,2}:", dpp_grid.prob([0,1,2])
+    # print "B = {3} | A = {0,1,2}:", dpp_grid.cond_prob([3], [0,1,2])
+    # print "B = {4} | A = {0,1,2}:", dpp_grid.cond_prob([4], [0,1,2])
+    # print "B = {9} | A = {0,1,2}:", dpp_grid.cond_prob([9], [0,1,2])
+    # print 
+    # print "B = {2} | A = {0,1}:", dpp_grid.cond_prob([2], [0,1])
+    # print "B = {3} | A = {0,1}:", dpp_grid.cond_prob([3], [0,1])
+    # print "B = {99} | A = {0,50}:", dpp_grid.cond_prob([99], [0,50])
+    # # p.s: you need to convert idx_to_point to see which point it is
 
-    # sampling only 10 elements
-    sampled_idxs = dpp_grid.sample_dpp()
-    sampled_points = dpp_grid.idx_to_point[sampled_idxs]
-    plt.scatter(sampled_points[:,0], sampled_points[:,1])
-    plt.show()
+    # # sampling only 10 elements
+    # sampled_idxs = dpp_grid.sample_dpp()
+    # sampled_points = dpp_grid.idx_to_point[sampled_idxs]
+    # plt.scatter(sampled_points[:,0], sampled_points[:,1])
+    # plt.show()
 
     # metropolis-hastings sampling is much faster, so I can quickly sample 100
     # elements
