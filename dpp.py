@@ -386,10 +386,12 @@ class DPP:
             u = np.random.choice(X, 1, replace=False)
             v = np.random.choice(SnoX, 1, replace=False)
 
+            log.debug('u: %s, v: %s', u, v)
+
             # letting Y = X \ {u}
             Y = list(X)
             Y.remove(u)
-            L_Y_inv = self.L_sel(Y)
+            L_Y_inv = np.linalg.inv( self.L_sel(Y) )
 
             # selecting corresponding vectors for elements u and v
             b_v = self.L[Y,v][:, np.newaxis]
@@ -402,6 +404,8 @@ class DPP:
             d_v = c_v - np.dot(np.dot(b_v.T, L_Y_inv), b_v)
             d_u = c_u - np.dot(np.dot(b_u.T, L_Y_inv), b_u)
             p = min(1, d_v / d_u)
+
+            log.info('d_v: %s, d_u: %s, p: %s', d_v, d_u, p)
 
             # includes {v} with prob. p
             # includes u with probability pu_pos
