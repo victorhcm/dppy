@@ -44,6 +44,10 @@ class DPP:
     def prob(self, items):
         return np.linalg.det( self.L[ self._idxs(items) ] )
     
+    def logdet_prob(self, items):
+        sign, logdet = np.linalg.slogdet( self.L[self._idxs(items)] )
+        return sign * np.exp(logdet)
+    
     def cond_prob(self, new_items, sampled = []):
         """implement the conditioning function"""
         if not sampled:
@@ -458,7 +462,7 @@ if __name__ == "__main__":
     grid_points = np.arange(n) / float(n)
     dpp_grid = DPP(grid_points)
 
-    sampled_idxs = dpp_grid.k_dpp_sampler()
+    sampled_idxs = dpp_grid.mh_sampler()
     sampled_points = dpp_grid.idx_to_point[sampled_idxs]
     plt.scatter(sampled_points[:,0], sampled_points[:,1])
     plt.show()
